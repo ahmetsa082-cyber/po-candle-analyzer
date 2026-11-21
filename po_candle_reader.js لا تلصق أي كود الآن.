@@ -153,4 +153,69 @@ function analyzePatterns(candles) {
     return patterns.length ? patterns : ["No recognized pattern"];
 }
 
-module.exports = { analyzeCandle, analyzePatterns };
+function analyzeAdvancedPatterns(candles) {
+  if (!Array.isArray(candles) || candles.length < 3) {
+    return ["بيانات غير كافية"];
+  }
+
+  const patterns = [];
+  const last = candles[candles.length - 1];
+  const prev = candles[candles.length - 2];
+  const first = candles[candles.length - 3];
+
+  const body = c => Math.abs(c.close - c.open);
+  const bullish = c => c.close > c.open;
+  const bearish = c => c.close < c.open;
+
+  // Inside Bar
+  if (
+    last.high < prev.high &&
+    last.low > prev.low
+  ) patterns.push("Inside Bar");
+
+  // Outside Bar
+  if (
+    last.high > prev.high &&
+    last.low < prev.low
+  ) patterns.push("Outside Bar");
+
+  // Tweezer Top
+  if (
+    Math.abs(last.high - prev.high) <
+    Math.max(body(last), body(prev)) * 0.15 &&
+    bearish(last) && bullish(prev)
+  ) patterns.push("Tweezer Top");
+
+  // Tweezer Bottom
+  if (
+    Math.abs(last.low - prev.low) <
+    Math.max(body(last), body(prev)) * 0.15 &&
+    bullish(last) && bearish(prev)
+  ) patterns.push("Tweezer Bottom");
+
+  // Harami
+  if (
+    body(last) < body(prev) &&
+    Math.max(last.open, last.close) <
+      Math.max(prev.open, prev.close) &&
+    Math.min(last.open, last.close) >
+      Math.min(prev.open, prev.close)
+  ) patterns.push("Harami");
+
+  // Three-candle trend check
+  if (
+    bullish(first) && bullish(prev) && bullish(last)
+  ) patterns.push("Three Bullish Candles");
+
+  if (
+    bearish(first) && bearish(prev) && bearish(last)
+  ) patterns.push("Three Bearish Candles");
+
+  return patterns.length ? patterns : ["No clear pattern"];
+}
+
+module.exports = {
+  analyzeCandle,
+  analyzePatterns,
+  analyzeAdvancedPatterns
+};

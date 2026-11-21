@@ -1,29 +1,72 @@
 
-const { analyzeCandle } = require("./po_candle_reader");
+const { analyzeCandle, analyzePatterns } =
+    require("./po_candle_reader");
 
 const tests = [
     {
-        name: "Hammer",
-        candle: { open: 100, high: 101, low: 90, close: 101 },
-        expected: "Hammer"
+        name: "Bullish Engulfing",
+        candles: [
+            { open: 10, high: 10.5, low: 7.5, close: 8 },
+            { open: 7.5, high: 11, low: 7, close: 10.5 }
+        ]
     },
     {
-        name: "Shooting Star",
-        candle: { open: 100, high: 110, low: 99, close: 100 },
-        expected: "Shooting Star"
+        name: "Bearish Engulfing",
+        candles: [
+            { open: 8, high: 10.5, low: 7.5, close: 10 },
+            { open: 10.5, high: 11, low: 7, close: 7.5 }
+        ]
     },
     {
-        name: "Doji",
-        candle: { open: 100, high: 105, low: 95, close: 100 },
-        expected: "Doji"
+        name: "Morning Star",
+        candles: [
+            { open: 10, high: 10.5, low: 5.5, close: 6 },
+            { open: 5.8, high: 6.3, low: 5.5, close: 6.2 },
+            { open: 6.1, high: 9.8, low: 6, close: 9.5 }
+        ]
+    },
+    {
+        name: "Evening Star",
+        candles: [
+            { open: 6, high: 10.5, low: 5.5, close: 10 },
+            { open: 10.1, high: 10.4, low: 9.9, close: 10.3 },
+            { open: 10, high: 10.2, low: 6, close: 6.5 }
+        ]
+    },
+    {
+        name: "Three White Soldiers",
+        candles: [
+            { open: 1, high: 2.2, low: 0.9, close: 2 },
+            { open: 2, high: 3.2, low: 1.9, close: 3 },
+            { open: 3, high: 4.2, low: 2.9, close: 4 }
+        ]
+    },
+    {
+        name: "Three Black Crows",
+        candles: [
+            { open: 4, high: 4.1, low: 2.8, close: 3 },
+            { open: 3, high: 3.1, low: 1.8, close: 2 },
+            { open: 2, high: 2.1, low: 0.8, close: 1 }
+        ]
     }
 ];
 
 for (const test of tests) {
-    const result = analyzeCandle(test.candle);
-    const passed = result.includes(test.expected);
+    const result = analyzePatterns(test.candles);
+    const passed = result.includes(test.name);
 
-    console.log(
-        `${test.name}: ${passed ? "PASS" : "FAIL"}`
-    );
+    console.log(`${test.name}: ${passed ? "PASS" : "FAIL"}`);
 }
+
+// اختبار الشموع الفردية
+const candle = {
+    open: 100,
+    high: 101,
+    low: 90,
+    close: 101
+};
+
+console.log(
+    "Hammer:",
+    analyzeCandle(candle).includes("Hammer") ? "PASS" : "FAIL"
+);

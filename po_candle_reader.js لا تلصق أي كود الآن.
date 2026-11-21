@@ -1,0 +1,61 @@
+
+function analyzeCandle(candle) {
+    const { open, high, low, close } = candle;
+
+    const range = high - low;
+
+    if (
+        ![open, high, low, close].every(Number.isFinite) ||
+        range <= 0 ||
+        high < Math.max(open, close) ||
+        low > Math.min(open, close)
+    ) {
+        return ["بيانات شمعة غير صالحة"];
+    }
+
+    const body = Math.abs(close - open);
+    const upperWick = high - Math.max(open, close);
+    const lowerWick = Math.min(open, close) - low;
+
+    const bodyRatio = body / range;
+    const upperRatio = upperWick / range;
+    const lowerRatio = lowerWick / range;
+
+    const results = [];
+
+    if (bodyRatio <= 0.10) {
+        results.push("Doji");
+    }
+
+    if (
+        lowerRatio >= 0.60 &&
+        upperRatio <= 0.15 &&
+        bodyRatio <= 0.30
+    ) {
+        results.push("Hammer");
+    }
+
+    if (
+        upperRatio >= 0.60 &&
+        lowerRatio <= 0.15 &&
+        bodyRatio <= 0.30
+    ) {
+        results.push("Shooting Star");
+    }
+
+    if (results.length === 0) {
+        results.push("شمعة عادية");
+    }
+
+    return results;
+}
+
+// اختبار تعليمي
+const sample = {
+    open: 100,
+    high: 102,
+    low: 94,
+    close: 101
+};
+
+console.log(analyzeCandle(sample));

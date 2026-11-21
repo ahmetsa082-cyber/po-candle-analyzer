@@ -59,4 +59,98 @@ const sample = {
 };
 
 console.log(analyzeCandle(sample));
-module.exports = { analyzeCandle };
+
+function analyzePatterns(candles) {
+    const patterns = [];
+
+    if (!Array.isArray(candles) || candles.length < 2) {
+        return ["نحتاج إلى شمعتين على الأقل"];
+    }
+
+    const valid = candles.every(c =>
+        c &&
+        [c.open, c.high, c.low, c.close].every(Number.isFinite) &&
+        c.high >= Math.max(c.open, c.close) &&
+        c.low <= Math.min(c.open, c.close) &&
+        c.high >= c.low
+    );
+
+    if (!valid) {
+        return ["بيانات الشموع غير صالحة"];
+    }
+
+    const bullish = c => c.close > c.open;
+    const bearish = c => c.close < c.open;
+    const body = c => Math.abs(c.close - c.open);
+
+    const last = candles[candles.length - 1];
+    const prev = candles[candles.length - 2];
+
+    // Bullish Engulfing
+    if (
+        bearish(prev) &&
+        bullish(last) &&
+        last.open <= prev.close &&
+        last.close >= prev.open
+    ) {
+        patterns.push("Bullish Engulfing");
+    }
+
+    // Bearish Engulfing
+    if (
+        bullish(prev) &&
+        bearish(last) &&
+        last.open >= prev.close &&
+        last.close <= prev.open
+    ) {
+        patterns.push("Bearish Engulfing");
+    }
+
+    if (candles.length >= 3) {
+        const a = candles[candles.length - 3];
+        const b = candles[candles.length - 2];
+        const c = last;
+
+        // Morning Star
+        if (
+            bearish(a) &&
+            body(b) < body(a) * 0.5 &&
+            bullish(c) &&
+            c.close > (a.open + a.close) / 2
+        ) {
+            patterns.push("Morning Star");
+        }
+
+        // Evening Star
+        if (
+            bullish(a) &&
+            body(b) < body(a) * 0.5 &&
+            bearish(c) &&
+            c.close < (a.open + a.close) / 2
+        ) {
+            patterns.push("Evening Star");
+        }
+
+        // Three White Soldiers
+        if (
+            [a, b, c].every(bullish) &&
+            a.close < b.close &&
+            b.close < c.close
+        ) {
+            patterns.push("Three White Soldiers");
+        }
+
+        // Three Black Crows
+        if (
+            [a, b, c].every(bearish) &&
+            a.close > b.close &&
+            b.close > c.close
+        ) {
+            patterns.push("Three Black Crows");
+        }
+    }
+
+    return patterns.length ? patterns : ["No recognized pattern"];
+}
+
+module.exports = { analyzeCandle, analyzePatterns };

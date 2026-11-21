@@ -70,3 +70,15 @@ console.log(
     "Hammer:",
     analyzeCandle(candle).includes("Hammer") ? "PASS" : "FAIL"
 );
+const { analyzeAdvancedPatterns } = require("./po_candle_reader");
+
+const advancedCandles = [
+  { open: 10, high: 13, low: 9, close: 12 },
+  { open: 12, high: 14, low: 11, close: 13 },
+  { open: 13, high: 15, low: 12, close: 14 }
+];
+
+const result = analyzeAdvancedPatterns(advancedCandles);
+
+console.log("Advanced patterns:", result);
+console.log("Advanced test:", Array.isArray(result) ? "PASS" : "FAIL");
